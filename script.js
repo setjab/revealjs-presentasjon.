@@ -5,10 +5,11 @@ import { TextGeometry } from "https://cdnjs.cloudflare.com/ajax/libs/three.js/11
 // Opprett scene, kamera og renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 30;
+camera.position.set(0, 10, 30); // Plasser kamera litt høyere
 
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("scene") });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
 
 // Saturn (stor sfære med ringer)
 const saturnGeometry = new THREE.SphereGeometry(5, 32, 32);
@@ -23,7 +24,7 @@ const ringMaterial = new THREE.MeshBasicMaterial({
   side: THREE.DoubleSide,
 });
 const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-ring.rotation.x = Math.PI / 2;
+ring.rotation.x = Math.PI / 2; // Roter ringen
 scene.add(ring);
 
 // Sfære som beveger seg rundt Saturn
@@ -34,19 +35,17 @@ scene.add(orbitSphere);
 
 // Lys for effekten
 const light = new THREE.PointLight(0xffffff, 1, 100);
-light.position.set(0, 0, 10);
+light.position.set(10, 20, 30);
 scene.add(light);
 
 // 3D-tekst
 const fontLoader = new FontLoader();
-let textMesh;
-
 fontLoader.load(
   "https://threejs.org/examples/fonts/helvetiker_bold.typeface.json",
   (font) => {
     const textGeometry = new TextGeometry("Velkommen til Nav Land 2050", {
       font: font,
-      size: 1,
+      size: 2, // Større tekst
       height: 0.5,
       curveSegments: 12,
       bevelEnabled: true,
@@ -56,8 +55,9 @@ fontLoader.load(
     });
 
     const textMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-    textMesh = new THREE.Mesh(textGeometry, textMaterial);
-    textMesh.position.set(-15, 10, 0);
+    const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+    textMesh.position.set(-18, 10, 0); // Juster posisjonen
+    textMesh.rotation.y = Math.PI / 8; // Liten rotasjon for effekt
     scene.add(textMesh);
   }
 );
@@ -77,7 +77,7 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-// Håndter vinduendringer
+// Håndter endring av vindusstørrelse
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
