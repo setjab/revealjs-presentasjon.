@@ -10,34 +10,41 @@ camera.position.z = 30;
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("scene") });
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-// Saturn (stor sfære)
+// Saturn (stor sfære med ringer)
 const saturnGeometry = new THREE.SphereGeometry(5, 32, 32);
 const saturnMaterial = new THREE.MeshBasicMaterial({ color: 0xffd700 });
 const saturn = new THREE.Mesh(saturnGeometry, saturnMaterial);
 scene.add(saturn);
 
+// Ringene til Saturn
+const ringGeometry = new THREE.RingGeometry(6, 9, 64);
+const ringMaterial = new THREE.MeshBasicMaterial({
+  color: 0xffd700,
+  side: THREE.DoubleSide,
+});
+const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+ring.rotation.x = Math.PI / 2;
+scene.add(ring);
+
 // Sfære som beveger seg rundt Saturn
-const movingSphereGeometry = new THREE.SphereGeometry(1, 32, 32);
-const movingSphereMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-const movingSphere = new THREE.Mesh(movingSphereGeometry, movingSphereMaterial);
-scene.add(movingSphere);
+const orbitSphereGeometry = new THREE.SphereGeometry(1, 32, 32);
+const orbitSphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const orbitSphere = new THREE.Mesh(orbitSphereGeometry, orbitSphereMaterial);
+scene.add(orbitSphere);
 
 // Lys for effekten
 const light = new THREE.PointLight(0xffffff, 1, 100);
 light.position.set(0, 0, 10);
 scene.add(light);
 
-// Variabler for animasjon
-let angle = 0;
-
-// Last inn 3D-font og legg til tekst
+// 3D-tekst
 const fontLoader = new FontLoader();
 let textMesh;
 
 fontLoader.load(
   "https://threejs.org/examples/fonts/helvetiker_bold.typeface.json",
   (font) => {
-    const textGeometry = new TextGeometry("Velkommen til Nav Land", {
+    const textGeometry = new TextGeometry("Velkommen til Nav Land 2050", {
       font: font,
       size: 1,
       height: 0.5,
@@ -50,9 +57,13 @@ fontLoader.load(
 
     const textMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
     textMesh = new THREE.Mesh(textGeometry, textMaterial);
+    textMesh.position.set(-15, 10, 0);
     scene.add(textMesh);
   }
 );
+
+// Variabler for animasjon
+let angle = 0;
 
 // Animasjonsfunksjon
 function animate() {
@@ -60,29 +71,13 @@ function animate() {
 
   // Beveg sfæren rundt Saturn
   angle += 0.02;
-  movingSphere.position.x = 12 * Math.cos(angle);
-  movingSphere.position.z = 12 * Math.sin(angle);
-
-  // Flytt teksten sammen med sfæren
-  if (textMesh) {
-    textMesh.position.x = movingSphere.position.x;
-    textMesh.position.z = movingSphere.position.z;
-    textMesh.position.y = movingSphere.position.y + 2; // Løft teksten litt over sfæren
-
-    // Roter teksten mot kamera
-    textMesh.lookAt(camera.position);
-
-    // Stopp teksten foran Saturn
-    if (Math.abs(movingSphere.position.z) < 0.5 && movingSphere.position.x > 0) {
-      textMesh.position.x = 0;
-      textMesh.position.z = 7; // Stopp teksten foran Saturn
-    }
-  }
+  orbitSphere.position.x = 12 * Math.cos(angle);
+  orbitSphere.position.z = 12 * Math.sin(angle);
 
   renderer.render(scene, camera);
 }
 
-// Håndter endring av vindusstørrelse
+// Håndter vinduendringer
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
